@@ -24,7 +24,7 @@ const Spike = mongoose.model('Spike', spikeSchema);
 
 async function seed() {
     try {
-        await mongoose.connect("mongodb+srv://cloudx:VYrcm6RV7I6oTQeS@cluster0.1hrhf.mongodb.net/?", { useNewUrlParser: true, useUnifiedTopology: true });
+        await mongoose.connect("", { useNewUrlParser: true, useUnifiedTopology: true });
         console.log('✅ Connected to MongoDB');
 
         // Remove any existing spikes for today (optional)
