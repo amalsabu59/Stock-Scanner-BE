@@ -17,6 +17,7 @@ const spikeSchema = new mongoose.Schema({
     todayHighPrice: Number,
     todaysLowPrice: Number,
     todaysOpen: Number,
+    tradeValue: Number,
 
 
     timestamp: { type: Date, default: Date.now },

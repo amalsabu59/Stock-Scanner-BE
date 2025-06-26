@@ -2,9 +2,24 @@ const Spike = require("../models/spike.model");
 
 async function getSpikes(req, res) {
     try {
-        const { segment, type, volume, from, page = 1, limit = 20 } = req.query;
-        const volThreshold = parseInt(volume) || 100000;
-        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const {
+            segment,
+            type,
+            volume,
+            from,
+            page = 1,
+            limit = 20,
+            sortBy = 'timestamp',     // NEW: Default sort
+            sortOrder = 'desc'        // NEW: Default order
+        } = req.query;
+
+        let rawSymbols = req.query.symbols;
+        if (!rawSymbols && req.query['symbols[]']) {
+            rawSymbols = req.query['symbols[]'];
+        }
+
+        const volThreshold = parseInt(volume, 10) || 100000;
+        const skip = (parseInt(page, 10) - 1) * parseInt(limit, 10);
 
         let fromDate = new Date();
         if (from) {
@@ -18,14 +33,31 @@ async function getSpikes(req, res) {
             timestamp: { $gte: fromDate },
             volumeDelta: { $gte: volThreshold },
         };
-
         if (segment) query.segment = segment;
         if (type) query.type = type;
 
+        if (rawSymbols) {
+            let symbolsArr;
+            if (Array.isArray(rawSymbols)) {
+                symbolsArr = rawSymbols;
+            } else if (typeof rawSymbols === 'string') {
+                symbolsArr = rawSymbols.split(',').map(s => s.trim()).filter(Boolean);
+            }
+            if (symbolsArr.length) {
+                query.symbol = { $in: symbolsArr };
+            }
+        }
+
+        // 🆕 Sort handling
+        const allowedFields = ['timestamp', 'volumeDelta', 'tradeValue'];
+        const sortField = allowedFields.includes(sortBy) ? sortBy : 'timestamp';
+        const sortDirection = sortOrder === 'asc' ? 1 : -1;
+        const sortConfig = { [sortField]: sortDirection };
+
         const spikes = await Spike.find(query)
-            .sort({ timestamp: -1 })
+            .sort(sortConfig)
             .skip(skip)
-            .limit(parseInt(limit));
+            .limit(parseInt(limit, 10));
 
         const total = await Spike.countDocuments(query);
 

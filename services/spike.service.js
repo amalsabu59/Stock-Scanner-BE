@@ -37,7 +37,8 @@ async function checkSpikes(volumeBuckets, threshold = 10000) {
                         openPriceofCandle: data.openPrice,
                         todayHighPrice: data.highPrice,
                         todaysLowPrice: data.lowPrice,
-                        todaysOpen: data.todayOpen
+                        todaysOpen: data.todayOpen,
+                        tradeValue: data.openPrice * delta,
                     });
 
 
