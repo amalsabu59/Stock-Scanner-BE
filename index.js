@@ -2,7 +2,11 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
+//Routes
+const symbolsRoutes = require("./routes/symbols.routes");
 const spikeRoutes = require("./routes/spike.routes");
+
+
 const fyersService = require("./services/fyers.service");
 const websocketService = require("./services/websocket.service");
 const spikeService = require("./services/spike.service");
@@ -24,7 +28,9 @@ const app = express();
 const port = 3000;
 
 app.use(cors());
+app.use(express.json());
 app.use("/api", spikeRoutes);
+app.use('/api', symbolsRoutes);
 
 connectDB(MONGODB_URI);
 fyersService.initFyers({ APP_ID, REDIRECT_URL });
